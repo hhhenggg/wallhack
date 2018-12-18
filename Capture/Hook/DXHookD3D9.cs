@@ -16,6 +16,35 @@ namespace Capture.Hook
         {
         }
 
+        /// <summary>
+        /// The IDirect3DDevice9.EndScene function definition
+        /// </summary>
+        /// <param name="device"></param>
+        /// <returns></returns>
+        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
+        delegate int Direct3D9Device_EndSceneDelegate(IntPtr device);
+
+        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
+        delegate int Direct3D9Device_CreateQueryDelegate(IntPtr devicePtr, int Type1, IntPtr ppQuery);
+
+        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
+        delegate int Direct3D9Device_DrawIndexedPrimitiveDelegate(IntPtr devicePtr, PrimitiveType arg0, int baseVertexIndex, int minVertexIndex, int numVertices, int startIndex, int primCount);
+
+        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
+        delegate int Direct3D9Device_SetStreamSourceDelegate(IntPtr devicePtr, uint StreamNumber, IntPtr pStreamData, uint OffsetInBytes, uint sStride);
+
+        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
+        delegate int Direct3D9Device_SetTextureDelegate(IntPtr devicePtr, uint Sampler, IntPtr pTexture);
+
+        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
+        delegate int Direct3D9Device_ResetDelegate(IntPtr device, ref PresentParameters presentParameters);
+
+        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
+        unsafe delegate int Direct3D9Device_PresentDelegate(IntPtr devicePtr, SharpDX.Rectangle* pSourceRect, SharpDX.Rectangle* pDestRect, IntPtr hDestWindowOverride, IntPtr pDirtyRegion);
+
+        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
+        unsafe delegate int Direct3D9DeviceEx_PresentExDelegate(IntPtr devicePtr, SharpDX.Rectangle* pSourceRect, SharpDX.Rectangle* pDestRect, IntPtr hDestWindowOverride, IntPtr pDirtyRegion, Present dwFlags);
+
         Hook<Direct3D9Device_EndSceneDelegate> Direct3DDevice_EndSceneHook = null;
         Hook<Direct3D9Device_ResetDelegate> Direct3DDevice_ResetHook = null;
         Hook<Direct3D9Device_PresentDelegate> Direct3DDevice_PresentHook = null;
@@ -60,7 +89,6 @@ namespace Capture.Hook
             using (var renderForm = new System.Windows.Forms.Form())
             using (device = new Device(d3d, 0, DeviceType.NullReference, IntPtr.Zero, CreateFlags.HardwareVertexProcessing, new PresentParameters() { BackBufferWidth = 1, BackBufferHeight = 1, DeviceWindowHandle = renderForm.Handle }))
             {
-
                 this.DebugMessage("Hook: Device created");
                 id3dDeviceFunctionAddresses.AddRange(GetVTblAddresses(device.NativePointer, D3D9_DEVICE_METHOD_COUNT));
             }
@@ -71,7 +99,6 @@ namespace Capture.Hook
                 using (var renderForm = new System.Windows.Forms.Form())
                 using (var deviceEx = new DeviceEx(d3dEx, 0, DeviceType.NullReference, IntPtr.Zero, CreateFlags.HardwareVertexProcessing, new PresentParameters() { BackBufferWidth = 1, BackBufferHeight = 1, DeviceWindowHandle = renderForm.Handle }, new DisplayModeEx() { Width = 800, Height = 600 }))
                 {
-                    this.DebugMessage("Hook: Direct3DEx...");
                     this.DebugMessage("Hook: DeviceEx created - PresentEx supported");
                     id3dDeviceFunctionAddresses.AddRange(GetVTblAddresses(deviceEx.NativePointer, D3D9_DEVICE_METHOD_COUNT, D3D9Ex_DEVICE_METHOD_COUNT));
                     _supportsDirect3D9Ex = true;
@@ -243,36 +270,6 @@ namespace Capture.Hook
             }
         }
 
-        /// <summary>
-        /// The IDirect3DDevice9.EndScene function definition
-        /// </summary>
-        /// <param name="device"></param>
-        /// <returns></returns>
-        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
-        delegate int Direct3D9Device_EndSceneDelegate(IntPtr device);
-
-        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
-        delegate int Direct3D9Device_CreateQueryDelegate(IntPtr devicePtr, int Type1, IntPtr ppQuery);
-
-        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
-        delegate int Direct3D9Device_DrawIndexedPrimitiveDelegate(IntPtr devicePtr, PrimitiveType arg0, int baseVertexIndex, int minVertexIndex, int numVertices, int startIndex, int primCount);
-
-        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
-        delegate int Direct3D9Device_SetStreamSourceDelegate(IntPtr devicePtr, uint StreamNumber, IntPtr pStreamData, uint OffsetInBytes, uint sStride);
-
-        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
-        delegate int Direct3D9Device_SetTextureDelegate(IntPtr devicePtr, uint Sampler, IntPtr pTexture);
-
-        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
-        delegate int Direct3D9Device_ResetDelegate(IntPtr device, ref PresentParameters presentParameters);
-
-        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
-        unsafe delegate int Direct3D9Device_PresentDelegate(IntPtr devicePtr, SharpDX.Rectangle* pSourceRect, SharpDX.Rectangle* pDestRect, IntPtr hDestWindowOverride, IntPtr pDirtyRegion);
-
-        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
-        unsafe delegate int Direct3D9DeviceEx_PresentExDelegate(IntPtr devicePtr, SharpDX.Rectangle* pSourceRect, SharpDX.Rectangle* pDestRect, IntPtr hDestWindowOverride, IntPtr pDirtyRegion, Present dwFlags);
-
-
         private uint Stride;
         private int NumVertices;
         private int primCount;
@@ -293,7 +290,6 @@ namespace Capture.Hook
 
         private int CreateQueryHook(IntPtr devicePtr, int Type, IntPtr ppQuery)
         {
-            //this.DebugMessage(Type1.ToString()+":"+ devicePtr.ToString());
             if (Type == 9)
             {
                 Type = 10;
@@ -343,7 +339,7 @@ namespace Capture.Hook
             {
                 //AddWeapons(device);
                 //设置墙后颜色
-                //device.SetTexture(0, textureBack);
+                device.SetTexture(0, textureBack);
             }
 
             return Direct3DDevice_SetTextureHook.Original(devicePtr, Sampler, pTexture);
@@ -351,10 +347,9 @@ namespace Capture.Hook
 
         private int EndSceneHook(IntPtr devicePtr)
         {
-            //this.DebugMessage("Hook: ceshi");
-            Device device1 = (Device)devicePtr;
+            Device device = (Device)devicePtr;
             if (!_isUsingPresent)
-                DoCaptureRenderTarget(device1, "EndSceneHook");
+                DoCaptureRenderTarget(device, "EndSceneHook");
             if (line != null)
             {
                 line.Draw(rawVector2s.ToArray(), new SharpDX.Mathematics.Interop.RawColorBGRA(0, 255, 0, 15));
@@ -376,7 +371,6 @@ namespace Capture.Hook
 
             //font.DrawText(null, "开启成功", 50, 50, SharpDX.Color.Green);
             //font.Dispose();
-            //WeaponEspInfoList.Clear();
             return Direct3DDevice_EndSceneHook.Original(devicePtr);
         }
 
@@ -394,7 +388,6 @@ namespace Capture.Hook
         private unsafe int PresentHook(IntPtr devicePtr, SharpDX.Rectangle* pSourceRect, SharpDX.Rectangle* pDestRect, IntPtr hDestWindowOverride, IntPtr pDirtyRegion)
         {
             _isUsingPresent = true;
-
             Device device = (Device)devicePtr;
 
             DoCaptureRenderTarget(device, "PresentHook");
@@ -405,14 +398,12 @@ namespace Capture.Hook
 
         private unsafe int PresentExHook(IntPtr devicePtr, SharpDX.Rectangle* pSourceRect, SharpDX.Rectangle* pDestRect, IntPtr hDestWindowOverride, IntPtr pDirtyRegion, Present dwFlags)
         {
-            //PresentHook(devicePtr);
             _isUsingPresent = true;
             DeviceEx device = (DeviceEx)devicePtr;
 
-
-
             DoCaptureRenderTarget(device, "PresentEx");
             SetColor(devicePtr, 0);
+
             return Direct3DDeviceEx_PresentExHook.Original(devicePtr, pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion, dwFlags);
         }
 
