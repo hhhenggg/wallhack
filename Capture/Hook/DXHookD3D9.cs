@@ -316,27 +316,43 @@ namespace Capture.Hook
         };
         int NewSetTexture(IntPtr devicePtr, uint Sampler, IntPtr pTexture)
         {
-            device = (Device)devicePtr;
-            var vShader = device.VertexShader;
-            if (vShader != null)
+            try
             {
-                if (vShader.Function.BufferSize != null)
+                device = (Device)devicePtr;
+
+                var floatC = device.GetVertexShaderFloatConstant(0, 4);
+                var vShader = device.VertexShader;
+                if (vShader != null)
                 {
-                    vSize = vShader.Function.BufferSize;
-                    vShader.Function.Dispose();
+                    if (vShader.Function.BufferSize != null)
+                    {
+                        vSize = vShader.Function.BufferSize;
+                    }
                 }
-                vShader.Dispose();
+
+                var primCount = PrimCount;
+
+                if (((Stride == 72 && vSize == 1836) || (Stride == 72 && NumVertices == 194 && primCount == 352) || (Stride == 72 && NumVertices == 1729 && primCount == 2960) || (Stride == 72 && NumVertices == 1362 && primCount == 2206) || (Stride == 72 && NumVertices == 1605 && primCount == 2872) || (Stride == 72 && NumVertices == 1198 && primCount == 2172) || (Stride == 72 && NumVertices == 406 && primCount == 632) || (Stride == 72 && NumVertices == 529 && primCount == 878) || (Stride == 72 && NumVertices == 696 && primCount == 1082) || (Stride == 32 && NumVertices == 645 && primCount == 1062) || (Stride == 32 && NumVertices == 493 && primCount == 826) || (Stride == 72 && NumVertices == 645 && primCount == 1062) || (Stride == 72 && NumVertices == 522 && primCount == 838) || (Stride == 72 && NumVertices == 2140 && primCount == 3736) || (Stride == 72 && NumVertices == 1626 && primCount == 2716) || (Stride == 24 && NumVertices == 493 && primCount == 806) || (Stride == 56 && NumVertices == 1055 && primCount == 1234) || (Stride == 56 && NumVertices == 926 && primCount == 1516) || (Stride == 56 && NumVertices == 1607 && primCount == 1916) || (Stride == 72 && NumVertices == 1184 && primCount == 1832) || (Stride == 72 && NumVertices == 1532 && primCount == 2580) || (Stride == 72 && NumVertices == 237 && primCount == 3806) || (Stride == 72 && NumVertices == 2913 && primCount == 4704) || (Stride == 72 && NumVertices == 3046 && primCount == 5422) || (Stride == 72 && NumVertices == 2906 && primCount == 4634) || (Stride == 72 && NumVertices == 1529 && primCount == 2734) || (Stride == 72 && NumVertices == 3672 && primCount == 6604) || (Stride == 72 && NumVertices == 4004 && primCount == 5326) || (Stride == 32 && NumVertices == 972 && primCount == 1696) || (Stride == 32 && NumVertices == 1998 && primCount == 3092) || (Stride == 72 && NumVertices == 1030 && primCount == 1768) || (Stride == 32 && NumVertices == 1844 && primCount == 2980) || (Stride == 72 && NumVertices == 1182 && primCount == 1940) || (Stride == 72 && NumVertices == 2237 && primCount == 3806) || (Stride == 72 && NumVertices == 253 && primCount == 358) || (Stride == 72 && NumVertices == 1224 && primCount == 2086) || (Stride == 72 && NumVertices == 124 && primCount == 164) || (Stride == 72 && NumVertices == 705 && primCount == 1188) || (Stride == 72 && NumVertices == 1411 && primCount == 1160) || (Stride == 72 && NumVertices == 1750 && primCount == 1440) || (Stride == 32 && NumVertices == 1411 && primCount == 1160) || (Stride == 32 && NumVertices == 1750 && primCount == 1440) || (Stride == 72 && NumVertices == 1477 && primCount == 1216) || (Stride == 72 && NumVertices == 1414 && primCount == 1754) || (Stride == 72 && NumVertices == 90 && primCount == 112) || (Stride == 56 && NumVertices == 3506 && primCount == 2167) || (Stride == 72 && NumVertices == 2544 && primCount == 3800) || (Stride == 72 && NumVertices == 2785 && primCount == 4136) || (Stride == 56 && NumVertices == 1678 && primCount == 1759) || (Stride == 72 && NumVertices == 5082 && primCount == 5086) || (Stride == 56 && NumVertices == 3068 && primCount == 1789) || (Stride == 72 && NumVertices == 6774 && primCount == 6882) || (Stride == 72 && NumVertices == 2215 && primCount == 3818) || (Stride == 72 && NumVertices == 1337 && primCount == 2376) || (Stride == 72 && NumVertices == 2292 && primCount == 3482) || (Stride == 72 && NumVertices == 3258 && primCount == 3931) || (Stride == 32 && NumVertices == 3643 && primCount == 3216) || (Stride == 72 && NumVertices == 2442 && primCount == 4632) || (Stride == 72 && NumVertices == 3585 && primCount == 3914) || (Stride == 72 && NumVertices == 3776 && primCount == 3416) || (Stride == 72 && NumVertices == 3563 && primCount == 3130) || (Stride == 72 && NumVertices == 3279 && primCount == 2945) || (Stride == 72 && NumVertices == 4478 && primCount == 4127) || (Stride == 72 && NumVertices == 1682 && primCount == 2866) || (Stride == 72 && NumVertices == 144 && primCount == 216) || (Stride == 72 && NumVertices == 689 && primCount == 1156) || (Stride == 72 && NumVertices == 58 && primCount == 56) || (Stride == 72 && NumVertices == 1692 && primCount == 2884) || (Stride == 72 && NumVertices == 1354 && primCount == 2202) || (Stride == 72 && NumVertices == 1705 && primCount == 3076) || (Stride == 80 && NumVertices == 614 && primCount == 828) || (Stride == 72 && NumVertices == 1222 && primCount == 2214) || (Stride == 72 && NumVertices == 356 && primCount == 534) || (Stride == 72 && NumVertices == 112 && primCount == 152) || (Stride == 72 && NumVertices == 21 && primCount == 24) || (Stride == 72 && NumVertices == 1194 && primCount == 2066)))
+                {
+                    AddWeapons(devicePtr);
+                    //设置墙后颜色
+                    //device.SetTexture(0, textureBack);
+                }
+                if (vShader != null)
+                {
+                    if (vShader.Function.BufferSize != null)
+                    {
+                        vShader.Function.Dispose();
+                    }
+                    vShader.Dispose();
+                }
             }
-
-
-            var primCount = PrimCount;
-
-            if (((Stride == 72 && vSize == 1836) || (Stride == 72 && NumVertices == 194 && primCount == 352) || (Stride == 72 && NumVertices == 1729 && primCount == 2960) || (Stride == 72 && NumVertices == 1362 && primCount == 2206) || (Stride == 72 && NumVertices == 1605 && primCount == 2872) || (Stride == 72 && NumVertices == 1198 && primCount == 2172) || (Stride == 72 && NumVertices == 406 && primCount == 632) || (Stride == 72 && NumVertices == 529 && primCount == 878) || (Stride == 72 && NumVertices == 696 && primCount == 1082) || (Stride == 32 && NumVertices == 645 && primCount == 1062) || (Stride == 32 && NumVertices == 493 && primCount == 826) || (Stride == 72 && NumVertices == 645 && primCount == 1062) || (Stride == 72 && NumVertices == 522 && primCount == 838) || (Stride == 72 && NumVertices == 2140 && primCount == 3736) || (Stride == 72 && NumVertices == 1626 && primCount == 2716) || (Stride == 24 && NumVertices == 493 && primCount == 806) || (Stride == 56 && NumVertices == 1055 && primCount == 1234) || (Stride == 56 && NumVertices == 926 && primCount == 1516) || (Stride == 56 && NumVertices == 1607 && primCount == 1916) || (Stride == 72 && NumVertices == 1184 && primCount == 1832) || (Stride == 72 && NumVertices == 1532 && primCount == 2580) || (Stride == 72 && NumVertices == 237 && primCount == 3806) || (Stride == 72 && NumVertices == 2913 && primCount == 4704) || (Stride == 72 && NumVertices == 3046 && primCount == 5422) || (Stride == 72 && NumVertices == 2906 && primCount == 4634) || (Stride == 72 && NumVertices == 1529 && primCount == 2734) || (Stride == 72 && NumVertices == 3672 && primCount == 6604) || (Stride == 72 && NumVertices == 4004 && primCount == 5326) || (Stride == 32 && NumVertices == 972 && primCount == 1696) || (Stride == 32 && NumVertices == 1998 && primCount == 3092) || (Stride == 72 && NumVertices == 1030 && primCount == 1768) || (Stride == 32 && NumVertices == 1844 && primCount == 2980) || (Stride == 72 && NumVertices == 1182 && primCount == 1940) || (Stride == 72 && NumVertices == 2237 && primCount == 3806) || (Stride == 72 && NumVertices == 253 && primCount == 358) || (Stride == 72 && NumVertices == 1224 && primCount == 2086) || (Stride == 72 && NumVertices == 124 && primCount == 164) || (Stride == 72 && NumVertices == 705 && primCount == 1188) || (Stride == 72 && NumVertices == 1411 && primCount == 1160) || (Stride == 72 && NumVertices == 1750 && primCount == 1440) || (Stride == 32 && NumVertices == 1411 && primCount == 1160) || (Stride == 32 && NumVertices == 1750 && primCount == 1440) || (Stride == 72 && NumVertices == 1477 && primCount == 1216) || (Stride == 72 && NumVertices == 1414 && primCount == 1754) || (Stride == 72 && NumVertices == 90 && primCount == 112) || (Stride == 56 && NumVertices == 3506 && primCount == 2167) || (Stride == 72 && NumVertices == 2544 && primCount == 3800) || (Stride == 72 && NumVertices == 2785 && primCount == 4136) || (Stride == 56 && NumVertices == 1678 && primCount == 1759) || (Stride == 72 && NumVertices == 5082 && primCount == 5086) || (Stride == 56 && NumVertices == 3068 && primCount == 1789) || (Stride == 72 && NumVertices == 6774 && primCount == 6882) || (Stride == 72 && NumVertices == 2215 && primCount == 3818) || (Stride == 72 && NumVertices == 1337 && primCount == 2376) || (Stride == 72 && NumVertices == 2292 && primCount == 3482) || (Stride == 72 && NumVertices == 3258 && primCount == 3931) || (Stride == 32 && NumVertices == 3643 && primCount == 3216) || (Stride == 72 && NumVertices == 2442 && primCount == 4632) || (Stride == 72 && NumVertices == 3585 && primCount == 3914) || (Stride == 72 && NumVertices == 3776 && primCount == 3416) || (Stride == 72 && NumVertices == 3563 && primCount == 3130) || (Stride == 72 && NumVertices == 3279 && primCount == 2945) || (Stride == 72 && NumVertices == 4478 && primCount == 4127) || (Stride == 72 && NumVertices == 1682 && primCount == 2866) || (Stride == 72 && NumVertices == 144 && primCount == 216) || (Stride == 72 && NumVertices == 689 && primCount == 1156) || (Stride == 72 && NumVertices == 58 && primCount == 56) || (Stride == 72 && NumVertices == 1692 && primCount == 2884) || (Stride == 72 && NumVertices == 1354 && primCount == 2202) || (Stride == 72 && NumVertices == 1705 && primCount == 3076) || (Stride == 80 && NumVertices == 614 && primCount == 828) || (Stride == 72 && NumVertices == 1222 && primCount == 2214) || (Stride == 72 && NumVertices == 356 && primCount == 534) || (Stride == 72 && NumVertices == 112 && primCount == 152) || (Stride == 72 && NumVertices == 21 && primCount == 24) || (Stride == 72 && NumVertices == 1194 && primCount == 2066)))
+            catch(Exception ex)
             {
-                AddWeapons(devicePtr);
-                //设置墙后颜色
-                device.SetTexture(0, textureBack);
+
+                this.DebugMessage(ex.Message);
             }
+            
 
             Direct3DDevice_SetTextureHook.Original(devicePtr, Sampler, pTexture);
             return 1;
@@ -347,41 +363,41 @@ namespace Capture.Hook
         {
             try
             {
-                device = (Device)devicePtr;
-                var floatC = device.GetVertexShaderFloatConstant(0, 4);
-                var floatN = new float[16];
-                floatN[3] = floatC[0];
-                floatN[7] = floatC[1];
-                floatN[11] = floatC[2];
-                floatN[15] = floatC[3];
-                var matrix = new SharpDX.Matrix(floatN);
-                SharpDX.Vector3 pOut;
-                SharpDX.Vector3 pIn = new SharpDX.Vector3(0, 3, 0);
-                float distance = pIn.X * matrix.M14 + pIn.Y * matrix.M24 + pIn.Z * matrix.M34 + matrix.M44;
-                matrix = SharpDX.Matrix.Transpose(matrix);
-                pOut = SharpDX.Vector3.TransformCoordinate(pIn, matrix);
-                var Viewport = device.Viewport;
+                //var device1 = (Device)devicePtr;
+                var floatC =device.GetVertexShaderFloatConstant(0, 4);
+                //var floatN = new float[16];
+                //floatN[3] = floatC[0];
+                //floatN[7] = floatC[1];
+                //floatN[11] = floatC[2];
+                //floatN[15] = floatC[3];
+                //var matrix = new SharpDX.Matrix(floatN);
+                //SharpDX.Vector3 pOut;
+                //SharpDX.Vector3 pIn = new SharpDX.Vector3(0, 3, 0);
+                //float distance = pIn.X * matrix.M14 + pIn.Y * matrix.M24 + pIn.Z * matrix.M34 + matrix.M44;
+                //matrix = SharpDX.Matrix.Transpose(matrix);
+                //pOut = SharpDX.Vector3.TransformCoordinate(pIn, matrix);
+                //var Viewport = device.Viewport;
 
-                pOut.X = Viewport.X + (1.0f + pOut.X) * Viewport.Width / 2.0f;
-                pOut.Y = Viewport.Y + (1.0f - pOut.Y) * Viewport.Height / 2.0f;
-                float x1, y1;
-                if (pOut.X > 0.0f && pOut.Y > 0.0f && pOut.X < Viewport.Width && pOut.Y < Viewport.Height)
-                {
-                    x1 = pOut.X;
-                    y1 = pOut.Y;
+                //pOut.X = Viewport.X + (1.0f + pOut.X) * Viewport.Width / 2.0f;
+                //pOut.Y = Viewport.Y + (1.0f - pOut.Y) * Viewport.Height / 2.0f;
+                //float x1, y1;
+                //if (pOut.X > 0.0f && pOut.Y > 0.0f && pOut.X < Viewport.Width && pOut.Y < Viewport.Height)
+                //{
+                //    x1 = pOut.X;
+                //    y1 = pOut.Y;
 
-                }
-                else
-                {
-                    x1 = -1.0f;
-                    y1 = -1.0f;
-                }
+                //}
+                //else
+                //{
+                //    x1 = -1.0f;
+                //    y1 = -1.0f;
+                //}
 
 
 
-                this.DebugMessage(pOut.X + "," + pOut.Y + "," + distance);
-                //WeaponEspInfo pWeaponEspInfo = new WeaponEspInfo { pOutX = x1, pOutY = y1, RealDistance = distance };
-                //WeaponEspInfoList.Add(pWeaponEspInfo);
+                //this.DebugMessage(pOut.X + "," + pOut.Y + "," + distance);
+                ////WeaponEspInfo pWeaponEspInfo = new WeaponEspInfo { pOutX = x1, pOutY = y1, RealDistance = distance };
+                ////WeaponEspInfoList.Add(pWeaponEspInfo);
             }
             catch (Exception ex )
             {
