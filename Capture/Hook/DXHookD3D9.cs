@@ -271,8 +271,8 @@ namespace Capture.Hook
             }
         }
 
-        private uint Stride;
-        private int NumVertices;
+        private uint stride;
+        private int numVertices;
         private int primCount;
         private int vSize;
         private bool initOnce = true;
@@ -280,6 +280,24 @@ namespace Capture.Hook
         private bool _isUsingPresent = false;
 
         private SharpDX.Mathematics.Interop.RawViewport Viewport;
+
+        private static class Configure
+        {
+            /// <summary>
+            /// 是否开启透视
+            /// </summary>
+            public static bool WallhackEnabled => true;
+
+            /// <summary>
+            /// 是否开启透视（Texture方法）
+            /// </summary>
+            public static bool WallhackInTextureEnabled => false;
+
+            /// <summary>
+            /// 是否放大头部
+            /// </summary>
+            public static bool ZoomhackEnabled => false;
+        }
 
         private struct WeaponEspInfo
         {
@@ -302,15 +320,37 @@ namespace Capture.Hook
         private int DrawIndexedPrimitiveHook(IntPtr devicePtr, PrimitiveType arg0, int baseVertexIndex, int minVertexIndex, int numVertices, int startIndex, int primCount)
         {
             this.primCount = primCount;
-            this.NumVertices = numVertices;
-            return Direct3DDevice_DrawIndexedPrimitiveHook.Original(devicePtr, arg0, baseVertexIndex, minVertexIndex, numVertices, startIndex, primCount);
+            this.numVertices = numVertices;
+
+            var device = new Device(devicePtr);
+            if (device != null)
+            {
+                if (Configure.WallhackEnabled && IsPlayers(stride, vSize, numVertices, primCount))
+                {
+                    device.SetRenderState(RenderState.Lighting, false);
+                    device.SetRenderState(RenderState.ZEnable, false);
+                    device.SetRenderState(RenderState.FillMode, FillMode.Solid);
+                    //设置墙后颜色
+                    device.SetTexture(0, textureBack);
+                    Direct3DDevice_DrawIndexedPrimitiveHook.Original(devicePtr, arg0, baseVertexIndex, minVertexIndex, numVertices, startIndex, primCount);
+
+                    device.SetRenderState(RenderState.ZEnable, true);
+                    device.SetRenderState(RenderState.FillMode, FillMode.Solid);
+                    device.SetTexture(0, textureFront);
+                }
+                else
+                {
+                    Direct3DDevice_DrawIndexedPrimitiveHook.Original(devicePtr, arg0, baseVertexIndex, minVertexIndex, numVertices, startIndex, primCount);
+                }
+            }
+            return 1;
         }
 
         private int SetStreamSourceHook(IntPtr devicePtr, uint StreamNumber, IntPtr pStreamData, uint OffsetInBytes, uint sStride)
         {
             if (StreamNumber == 0)
             {
-                Stride = sStride;
+                this.stride = sStride;
             }
             return Direct3DDevice_SetStreamSourceHook.Original(devicePtr, StreamNumber, pStreamData, OffsetInBytes, sStride);
         }
@@ -330,21 +370,28 @@ namespace Capture.Hook
             {
                 if (vShader.Function.BufferSize != null)
                 {
-                    vSize = vShader.Function.BufferSize;
+                    this.vSize = vShader.Function.BufferSize;
                     vShader.Function.Dispose();
                 }
                 vShader.Dispose();
             }
 
-            if ((Stride == 72 && vSize == 1836) || (Stride == 72 && NumVertices == 194 && primCount == 352) || (Stride == 72 && NumVertices == 1729 && primCount == 2960) || (Stride == 72 && NumVertices == 1362 && primCount == 2206) || (Stride == 72 && NumVertices == 1605 && primCount == 2872) || (Stride == 72 && NumVertices == 1198 && primCount == 2172) || (Stride == 72 && NumVertices == 406 && primCount == 632) || (Stride == 72 && NumVertices == 529 && primCount == 878) || (Stride == 72 && NumVertices == 696 && primCount == 1082) || (Stride == 32 && NumVertices == 645 && primCount == 1062) || (Stride == 32 && NumVertices == 493 && primCount == 826) || (Stride == 72 && NumVertices == 645 && primCount == 1062) || (Stride == 72 && NumVertices == 522 && primCount == 838) || (Stride == 72 && NumVertices == 2140 && primCount == 3736) || (Stride == 72 && NumVertices == 1626 && primCount == 2716) || (Stride == 24 && NumVertices == 493 && primCount == 806) || (Stride == 56 && NumVertices == 1055 && primCount == 1234) || (Stride == 56 && NumVertices == 926 && primCount == 1516) || (Stride == 56 && NumVertices == 1607 && primCount == 1916) || (Stride == 72 && NumVertices == 1184 && primCount == 1832) || (Stride == 72 && NumVertices == 1532 && primCount == 2580) || (Stride == 72 && NumVertices == 237 && primCount == 3806) || (Stride == 72 && NumVertices == 2913 && primCount == 4704) || (Stride == 72 && NumVertices == 3046 && primCount == 5422) || (Stride == 72 && NumVertices == 2906 && primCount == 4634) || (Stride == 72 && NumVertices == 1529 && primCount == 2734) || (Stride == 72 && NumVertices == 3672 && primCount == 6604) || (Stride == 72 && NumVertices == 4004 && primCount == 5326) || (Stride == 32 && NumVertices == 972 && primCount == 1696) || (Stride == 32 && NumVertices == 1998 && primCount == 3092) || (Stride == 72 && NumVertices == 1030 && primCount == 1768) || (Stride == 32 && NumVertices == 1844 && primCount == 2980) || (Stride == 72 && NumVertices == 1182 && primCount == 1940) || (Stride == 72 && NumVertices == 2237 && primCount == 3806) || (Stride == 72 && NumVertices == 253 && primCount == 358) || (Stride == 72 && NumVertices == 1224 && primCount == 2086) || (Stride == 72 && NumVertices == 124 && primCount == 164) || (Stride == 72 && NumVertices == 705 && primCount == 1188) || (Stride == 72 && NumVertices == 1411 && primCount == 1160) || (Stride == 72 && NumVertices == 1750 && primCount == 1440) || (Stride == 32 && NumVertices == 1411 && primCount == 1160) || (Stride == 32 && NumVertices == 1750 && primCount == 1440) || (Stride == 72 && NumVertices == 1477 && primCount == 1216) || (Stride == 72 && NumVertices == 1414 && primCount == 1754) || (Stride == 72 && NumVertices == 90 && primCount == 112) || (Stride == 56 && NumVertices == 3506 && primCount == 2167) || (Stride == 72 && NumVertices == 2544 && primCount == 3800) || (Stride == 72 && NumVertices == 2785 && primCount == 4136) || (Stride == 56 && NumVertices == 1678 && primCount == 1759) || (Stride == 72 && NumVertices == 5082 && primCount == 5086) || (Stride == 56 && NumVertices == 3068 && primCount == 1789) || (Stride == 72 && NumVertices == 6774 && primCount == 6882) || (Stride == 72 && NumVertices == 2215 && primCount == 3818) || (Stride == 72 && NumVertices == 1337 && primCount == 2376) || (Stride == 72 && NumVertices == 2292 && primCount == 3482) || (Stride == 72 && NumVertices == 3258 && primCount == 3931) || (Stride == 32 && NumVertices == 3643 && primCount == 3216) || (Stride == 72 && NumVertices == 2442 && primCount == 4632) || (Stride == 72 && NumVertices == 3585 && primCount == 3914) || (Stride == 72 && NumVertices == 3776 && primCount == 3416) || (Stride == 72 && NumVertices == 3563 && primCount == 3130) || (Stride == 72 && NumVertices == 3279 && primCount == 2945) || (Stride == 72 && NumVertices == 4478 && primCount == 4127) || (Stride == 72 && NumVertices == 1682 && primCount == 2866) || (Stride == 72 && NumVertices == 144 && primCount == 216) || (Stride == 72 && NumVertices == 689 && primCount == 1156) || (Stride == 72 && NumVertices == 58 && primCount == 56) || (Stride == 72 && NumVertices == 1692 && primCount == 2884) || (Stride == 72 && NumVertices == 1354 && primCount == 2202) || (Stride == 72 && NumVertices == 1705 && primCount == 3076) || (Stride == 80 && NumVertices == 614 && primCount == 828) || (Stride == 72 && NumVertices == 1222 && primCount == 2214) || (Stride == 72 && NumVertices == 356 && primCount == 534) || (Stride == 72 && NumVertices == 112 && primCount == 152) || (Stride == 72 && NumVertices == 21 && primCount == 24) || (Stride == 72 && NumVertices == 1194 && primCount == 2066))
+            if (Configure.WallhackInTextureEnabled)
             {
-                //AddWeapons(device);
-                //设置墙后颜色
-                device.SetTexture(0, textureBack);
+                if (IsPlayers(this.stride, this.vSize, this.numVertices, this.primCount))
+                {
+                    //AddWeapons(device);
+
+                    device.SetTexture(0, textureBack);
+                    device.SetRenderState(RenderState.ZEnable, false);
+                    Direct3DDevice_DrawIndexedPrimitiveHook.Original(devicePtr, PrimitiveType.TriangleList, 0, 0, numVertices, 0, primCount);
+                    device.SetRenderState(RenderState.ZEnable, true);
+                    device.SetTexture(0, textureFront);
+                }
             }
 
             //draw square on heads
-            if (false)
+            if (Configure.ZoomhackEnabled)
             {
                 int pSize = 0;
                 if (device.PixelShader != null)
@@ -376,8 +423,8 @@ namespace Capture.Hook
                     }
                 }
 
-                if ((Stride == 36 && vSize == 2356 && pSize != 1848 && pLockedRect.Pitch == 2048 && numElements == 6) || //hair	
-                    (Stride == 44 && vSize == 2356 && pSize == 2272 && pLockedRect.Pitch == 1024 && numElements == 10) || //hair2
+                if ((stride == 36 && vSize == 2356 && pSize != 1848 && pLockedRect.Pitch == 2048 && numElements == 6) || //hair	
+                    (stride == 44 && vSize == 2356 && pSize == 2272 && pLockedRect.Pitch == 1024 && numElements == 10) || //hair2
                     (vSize == 2008 && qCRC == 0xc46ee841) ||//helmet 1
                     (vSize == 2008 && qCRC == 0x9590d282) ||//helmet 2
                     (vSize == 2008 && qCRC == 0xe248e914))//helmet 3
@@ -389,6 +436,11 @@ namespace Capture.Hook
             }
 
             return Direct3DDevice_SetTextureHook.Original(devicePtr, Sampler, pTexture);
+        }
+
+        private bool IsPlayers(uint stride, int vSize, int numVertices, int primCount)
+        {
+            return (stride == 72 && vSize == 1836) || (stride == 72 && numVertices == 194 && primCount == 352) || (stride == 72 && numVertices == 1729 && primCount == 2960) || (stride == 72 && numVertices == 1362 && primCount == 2206) || (stride == 72 && numVertices == 1605 && primCount == 2872) || (stride == 72 && numVertices == 1198 && primCount == 2172) || (stride == 72 && numVertices == 406 && primCount == 632) || (stride == 72 && numVertices == 529 && primCount == 878) || (stride == 72 && numVertices == 696 && primCount == 1082) || (stride == 32 && numVertices == 645 && primCount == 1062) || (stride == 32 && numVertices == 493 && primCount == 826) || (stride == 72 && numVertices == 645 && primCount == 1062) || (stride == 72 && numVertices == 522 && primCount == 838) || (stride == 72 && numVertices == 2140 && primCount == 3736) || (stride == 72 && numVertices == 1626 && primCount == 2716) || (stride == 24 && numVertices == 493 && primCount == 806) || (stride == 56 && numVertices == 1055 && primCount == 1234) || (stride == 56 && numVertices == 926 && primCount == 1516) || (stride == 56 && numVertices == 1607 && primCount == 1916) || (stride == 72 && numVertices == 1184 && primCount == 1832) || (stride == 72 && numVertices == 1532 && primCount == 2580) || (stride == 72 && numVertices == 237 && primCount == 3806) || (stride == 72 && numVertices == 2913 && primCount == 4704) || (stride == 72 && numVertices == 3046 && primCount == 5422) || (stride == 72 && numVertices == 2906 && primCount == 4634) || (stride == 72 && numVertices == 1529 && primCount == 2734) || (stride == 72 && numVertices == 3672 && primCount == 6604) || (stride == 72 && numVertices == 4004 && primCount == 5326) || (stride == 32 && numVertices == 972 && primCount == 1696) || (stride == 32 && numVertices == 1998 && primCount == 3092) || (stride == 72 && numVertices == 1030 && primCount == 1768) || (stride == 32 && numVertices == 1844 && primCount == 2980) || (stride == 72 && numVertices == 1182 && primCount == 1940) || (stride == 72 && numVertices == 2237 && primCount == 3806) || (stride == 72 && numVertices == 253 && primCount == 358) || (stride == 72 && numVertices == 1224 && primCount == 2086) || (stride == 72 && numVertices == 124 && primCount == 164) || (stride == 72 && numVertices == 705 && primCount == 1188) || (stride == 72 && numVertices == 1411 && primCount == 1160) || (stride == 72 && numVertices == 1750 && primCount == 1440) || (stride == 32 && numVertices == 1411 && primCount == 1160) || (stride == 32 && numVertices == 1750 && primCount == 1440) || (stride == 72 && numVertices == 1477 && primCount == 1216) || (stride == 72 && numVertices == 1414 && primCount == 1754) || (stride == 72 && numVertices == 90 && primCount == 112) || (stride == 56 && numVertices == 3506 && primCount == 2167) || (stride == 72 && numVertices == 2544 && primCount == 3800) || (stride == 72 && numVertices == 2785 && primCount == 4136) || (stride == 56 && numVertices == 1678 && primCount == 1759) || (stride == 72 && numVertices == 5082 && primCount == 5086) || (stride == 56 && numVertices == 3068 && primCount == 1789) || (stride == 72 && numVertices == 6774 && primCount == 6882) || (stride == 72 && numVertices == 2215 && primCount == 3818) || (stride == 72 && numVertices == 1337 && primCount == 2376) || (stride == 72 && numVertices == 2292 && primCount == 3482) || (stride == 72 && numVertices == 3258 && primCount == 3931) || (stride == 32 && numVertices == 3643 && primCount == 3216) || (stride == 72 && numVertices == 2442 && primCount == 4632) || (stride == 72 && numVertices == 3585 && primCount == 3914) || (stride == 72 && numVertices == 3776 && primCount == 3416) || (stride == 72 && numVertices == 3563 && primCount == 3130) || (stride == 72 && numVertices == 3279 && primCount == 2945) || (stride == 72 && numVertices == 4478 && primCount == 4127) || (stride == 72 && numVertices == 1682 && primCount == 2866) || (stride == 72 && numVertices == 144 && primCount == 216) || (stride == 72 && numVertices == 689 && primCount == 1156) || (stride == 72 && numVertices == 58 && primCount == 56) || (stride == 72 && numVertices == 1692 && primCount == 2884) || (stride == 72 && numVertices == 1354 && primCount == 2202) || (stride == 72 && numVertices == 1705 && primCount == 3076) || (stride == 80 && numVertices == 614 && primCount == 828) || (stride == 72 && numVertices == 1222 && primCount == 2214) || (stride == 72 && numVertices == 356 && primCount == 534) || (stride == 72 && numVertices == 112 && primCount == 152) || (stride == 72 && numVertices == 21 && primCount == 24) || (stride == 72 && numVertices == 1194 && primCount == 2066);
         }
 
         private int EndSceneHook(IntPtr devicePtr)
