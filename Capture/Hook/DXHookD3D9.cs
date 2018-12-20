@@ -5,6 +5,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using Capture.Hook.Common;
 using Capture.Interface;
+using SharpDX;
 using SharpDX.Direct3D9;
 
 namespace Capture.Hook
@@ -342,6 +343,51 @@ namespace Capture.Hook
                 device.SetTexture(0, textureBack);
             }
 
+            //draw square on heads
+            if (false)
+            {
+                int pSize = 0;
+                if (device.PixelShader != null)
+                {
+                    pSize = device.PixelShader.Function.BufferSize;
+                    device.PixelShader.Function.Dispose();
+                    device.PixelShader.Dispose();
+                }
+
+                int numElements = 0;
+                if (device.VertexDeclaration != null)
+                {
+                    numElements = device.VertexDeclaration.Elements.Length;
+                    device.VertexDeclaration.Dispose();
+                }
+
+                var pLockedRect = default(DataRectangle);
+                var qCRC = default(uint);
+                if (numElements == 6 && Sampler == 0 && pTexture != null)
+                {
+                    var texture = new Texture(pTexture);
+                    var sDesc = texture.GetLevelDescription(0);
+
+                    if (sDesc.Pool == Pool.Managed && texture.TypeInfo == ResourceType.Texture && sDesc.Width == 512 && sDesc.Height == 512)
+                    {
+                        pLockedRect = texture.LockRectangle(0, LockFlags.DoNotWait | LockFlags.ReadOnly | LockFlags.NoSystemLock);
+                        qCRC = QuickChecksum(pLockedRect.DataPointer, pLockedRect.Pitch);
+                        texture.UnlockRectangle(0);
+                    }
+                }
+
+                if ((Stride == 36 && vSize == 2356 && pSize != 1848 && pLockedRect.Pitch == 2048 && numElements == 6) || //hair	
+                    (Stride == 44 && vSize == 2356 && pSize == 2272 && pLockedRect.Pitch == 1024 && numElements == 10) || //hair2
+                    (vSize == 2008 && qCRC == 0xc46ee841) ||//helmet 1
+                    (vSize == 2008 && qCRC == 0x9590d282) ||//helmet 2
+                    (vSize == 2008 && qCRC == 0xe248e914))//helmet 3
+                {
+                    device.SetRenderState(RenderState.DepthBias, 0);
+                    device.SetRenderState(RenderState.FillMode, FillMode.Point);
+                    DrawtoTarget(device);
+                }
+            }
+
             return Direct3DDevice_SetTextureHook.Original(devicePtr, Sampler, pTexture);
         }
 
@@ -449,6 +495,37 @@ namespace Capture.Hook
             {
                 this.DebugMessage(ex.Message);
             }
+        }
+
+        private void DrawtoTarget(Device device)
+        {
+            float pointSize = 5.0f;
+            device.SetRenderState(RenderState.PointSpriteEnable, false);
+            device.SetRenderState(RenderState.PointScaleEnable, false);
+            device.SetRenderState(RenderState.PointSize, pointSize);
+            device.SetRenderState(RenderState.PointSizeMax, pointSize);
+            device.SetRenderState(RenderState.PointSizeMin, pointSize);
+            device.SetRenderState(RenderState.StencilEnable, false);
+            //device.SetRenderState(RenderState.PointScaleA, false);
+            device.SetRenderState(RenderState.StencilEnable, true);
+        }
+
+        private unsafe uint QuickChecksum(IntPtr pData, int size)
+        {
+            uint* point = (uint*)pData.ToPointer();
+            uint sum;
+            uint tmp;
+            sum = *point;
+
+            for (int i = 1; i < (size / 4); i++)
+            {
+                tmp = point[i];
+                tmp = (sum >> 29) + tmp;
+                tmp = (sum >> 17) + tmp;
+                sum = (sum << 3) ^ tmp;
+            }
+
+            return sum;
         }
 
         void SetColor(IntPtr devicePtr, int isEx)
