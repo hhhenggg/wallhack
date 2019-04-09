@@ -59,10 +59,10 @@ namespace Capture
                 ref _channelName,
                 WellKnownObjectMode.Singleton,
                 _serverInterface);
-            bool ishook = false;
-            int count = 1;
-            while (!ishook && count < 50)
-            {
+            //bool ishook = false;
+            //int count = 1;
+            //while (!ishook && count < 50)
+            //{
                 try
                 {
 
@@ -76,14 +76,14 @@ namespace Capture
                         _channelName, // The name of the IPC channel for the injected assembly to connect to
                         config
                     );
-                    ishook = true;
+                    //ishook = true;
                 }
                 catch (Exception e)
                 {
-                    Thread.Sleep(300);
+                    //Thread.Sleep(300);
                     //throw new InjectionFailedException(e);
                 }
-            }
+            //}
             HookManager.AddHookedProcess(process.Id);
 
             Process = process;

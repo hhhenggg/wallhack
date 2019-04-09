@@ -14,6 +14,8 @@ namespace Capture.Interface
         public bool ShowOverlay { get; set; }
         public int TargetFramesPerSecond { get; set; }
         public string TargetFolder { get; set; }
+        public bool WallhackEnabled { get; set; } = true;
+        public bool WeaponEnabled { get; set; }
 
         public CaptureConfig()
         {
