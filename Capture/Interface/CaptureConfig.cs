@@ -15,7 +15,7 @@ namespace Capture.Interface
         public int TargetFramesPerSecond { get; set; }
         public string TargetFolder { get; set; }
         public bool WallhackEnabled { get; set; } = true;
-        public bool WeaponEnabled { get; set; }
+        public bool WeaponEnabled { get; set; } = false;
 
         public CaptureConfig()
         {
